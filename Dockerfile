@@ -12,7 +12,7 @@ RUN apt-get update && \
                     libasound2 && \
     rm -rf /var/lib/apt/lists/*
 
-ENV HIFIBERRY_BASE_URL https://github.com/hifiberry/hifiberry-os/raw/master/buildroot/package/raat
+ENV HIFIBERRY_BASE_URL https://github.com/SebuZet/hifiberry-os/raw/master/buildroot/package/raat
 ENV CONFIGURE_RAAT configure-raat
 ENV RAAT_APP raat_app
 
