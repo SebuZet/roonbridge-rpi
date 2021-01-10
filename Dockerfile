@@ -3,7 +3,7 @@ MAINTAINER kiril@phrontizo.com
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-                    wget \
+                    wget curl bzip2 libasound2 \
                     ca-certificates \
                     sox \
                     uuid-runtime \
@@ -19,7 +19,28 @@ ENV RAAT_APP raat_app
 # 63 is the audio group on the host
 ENV RAAT_USER 1000:63
 
-ADD entrypoint.sh /
+# ADD entrypoint.sh /
+
+# Location of Roon's latest Linux installer
+ENV ROON_INSTALLER roonbridge-installer-linuxarmv8.sh
+ENV ROON_INSTALLER_URL http://download.roonlabs.com/builds/${ROON_INSTALLER}
+
+# These are expected by Roon's startup script
+ENV ROON_DATAROOT /var/roon
+ENV ROON_ID_DIR /var/roon
+
+# Grab installer and script to run it
+ADD ${ROON_INSTALLER_URL} /tmp
+COPY run_installer.sh /tmp
+
+# Fix installer permissions
+RUN chmod 700 /tmp/${ROON_INSTALLER} /tmp/run_installer.sh
+
+# Run the installer, answer "yes" and ignore errors
+RUN /tmp/run_installer.sh
+
+# Your Roon data will be stored in /var/roon
+VOLUME [ "/var/roon" ]
 
 RUN mkdir -p /raat && \
     chown ${RAAT_USER} /raat && \
@@ -37,4 +58,4 @@ ENV HOME /raat
 WORKDIR /raat
 USER ${RAAT_USER}
 VOLUME /raat
-ENTRYPOINT /entrypoint.sh
+ENTRYPOINT /opt/RoonBridge/start.sh
